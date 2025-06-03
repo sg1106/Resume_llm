@@ -1,0 +1,140 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG PDF Question Answering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .mic-active {
+            background-color: #ef4444 !important;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-300 text-gray-800 min-h-screen font-sans flex flex-col">
+    <div class="flex-grow flex flex-col px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <header class="flex justify-center items-center py-6">
+            <h1 class="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600">
+                Portfolio LLm Assistant
+            </h1>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow flex flex-col items-center justify-center max-w-full">
+            <!-- Question Input Section -->
+            <section class="w-full max-w-4xl mb-8 p-6 bg-white rounded-xl shadow-xl transition-all duration-300">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Ask a Question</h2>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <textarea id="question" rows="4" class="flex-grow p-4 border rounded-lg bg-gray-50 border-gray-300 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Type or speak your question..."></textarea>
+                    <button id="micButton" class="p-4 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition self-start sm:self-center" aria-label="Toggle microphone">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <button onclick="askQuestion()" class="mt-4 w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition">Submit Question</button>
+            </section>
+
+            <!-- Answer Display Section -->
+            <section id="answerSection" class="w-full max-w-4xl p-6 bg-white rounded-xl shadow-xl hidden transition-all duration-300">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Answer</h2>
+                <div id="answer" class="text-gray-800 prose"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Voice Assistant
+        const questionInput = document.getElementById('question');
+        const micButton = document.getElementById('micButton');
+        let recognition = null;
+
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            let isListening = false;
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                questionInput.value = transcript;
+                isListening = false;
+                micButton.classList.remove('mic-active');
+                askQuestion(); // Automatically submit the question
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                isListening = false;
+                micButton.classList.remove('mic-active');
+                alert('Speech recognition error: ' + event.error);
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                micButton.classList.remove('mic-active');
+            };
+
+            micButton.addEventListener('click', () => {
+                if (isListening) {
+                    recognition.stop();
+                    isListening = false;
+                    micButton.classList.remove('mic-active');
+                } else {
+                    recognition.start();
+                    isListening = true;
+                    micButton.classList.add('mic-active');
+                }
+            });
+        } else {
+            micButton.style.display = 'none';
+            console.warn('Speech recognition not supported in this browser.');
+        }
+
+        // Handle question submission
+        async function askQuestion() {
+            const question = questionInput.value.trim();
+            const answerSection = document.getElementById('answerSection');
+            const answerDiv = document.getElementById('answer');
+            
+            if (!question) {
+                alert('Please enter or speak a question');
+                return;
+            }
+            
+            answerDiv.textContent = 'Processing...';
+            answerSection.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    answerDiv.innerHTML = result.answer.replace(/\n/g, '<br>');
+                } else {
+                    answerDiv.textContent = result.error;
+                }
+            } catch (error) {
+                answerDiv.textContent = 'Error processing question';
+            }
+        }
+    </script>
+</body>
+</html>
