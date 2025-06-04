@@ -1,0 +1,7 @@
+Flask
+python-dotenv
+PyPDF2
+chromadb
+sentence-transformers
+google-generativeai
+uuid
