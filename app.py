@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Configuration
-PDF_PATH = "swastik_resume_ats.pdf"  # Hardcoded PDF file path
+PDF_PATH = "swastik_resume.pdf"  # Hardcoded PDF file path
 RESUME_LINK = "https://drive.google.com/file/d/1SRjVRVYyLxjWtMa4t_4dToJIS3QD7ZHe/view?usp=drive_link"
 collection = None
 model = None
