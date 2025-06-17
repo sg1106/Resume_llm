@@ -223,7 +223,7 @@ import PyPDF2
 from sentence_transformers import SentenceTransformer
 # import chromadb
 import google.generativeai as genai
-from chromadb.utils import embedding_functions
+# from chromadb.utils import embedding_functions
 import logging
 import uuid
 from datetime import datetime
