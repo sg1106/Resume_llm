@@ -1,7 +1,7 @@
 Flask
 python-dotenv
 PyPDF2
-pickle
+
 sentence-transformers
 google-generativeai
 uuid
