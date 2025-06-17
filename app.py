@@ -248,7 +248,7 @@ app = Flask(__name__)
 # Configuration
 PDF_PATH = "swastik_resume.pdf"  # Hardcoded PDF file path
 RESUME_LINK = "https://drive.google.com/file/d/1SRjVRVYyLxjWtMa4t_4dToJIS3QD7ZHe/view?usp=drive_link"
-# EMBEDDING_MODEL_NAME = "all-MiniLM-L12-v2"
+EMBEDDING_MODEL_NAME = "all-MiniLM-L12-v2"
 PICKLE_DB_PATH = "vector_data.pkl"
 collection = None
 model = None
@@ -404,8 +404,8 @@ def init_rag_pipeline():
         text = extract_text_from_pdf(PDF_PATH)
         chunks = chunk_text(text)
         
-        rag_model = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L12-v2")
-        # SentenceTransformer(EMBEDDING_MODEL_NAME)
+        # rag_model = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L12-v2")
+        SentenceTransformer(EMBEDDING_MODEL_NAME)
         
         logger.info("Embedding model loaded successfully.")
 
